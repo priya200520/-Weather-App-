@@ -32,6 +32,21 @@ st.markdown("""
     color: #b0b0b0;
 }
 
+/* Weather icon */
+.weather-icon {
+    text-align: center;
+    font-size: 100px;
+    margin-top: 20px;
+}
+
+/* Weather status */
+.weather-status {
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+}
+
 /* Weather cards */
 [data-testid="stMetric"] {
     background-color: #1c1c1c;
@@ -91,6 +106,18 @@ with col2:
 display_city = city if city else "Your City"
 
 
+# Main weather icon
+st.markdown(
+    '<div class="weather-icon">🌤️</div>',
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    '<div class="weather-status">Weather Information</div>',
+    unsafe_allow_html=True
+)
+
+
 # Weather section
 st.markdown(f"### 📍 {display_city}")
 st.caption("Current Weather Information")
@@ -120,7 +147,7 @@ with col1:
     st.metric("🌡️ Feels Like", "-- °C")
 
 with col2:
-  st.metric("📊 Pressure", "-- hPa")
+    st.metric("📊 Pressure", "-- hPa")
 
 with col3:
     st.metric("👁️ Visibility", "-- km")
