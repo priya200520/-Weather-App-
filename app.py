@@ -11,16 +11,45 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-.main-title {
-    text-align: center;
-    font-size: 45px;
-    font-weight: bold;
+/* Main background */
+.stApp {
+    background-color: #000000;
+    color: white;
 }
 
+/* Main title */
+.main-title {
+    text-align: center;
+    font-size: 48px;
+    font-weight: bold;
+    color: white;
+}
+
+/* Subtitle */
 .subtitle {
     text-align: center;
     font-size: 18px;
-    color: gray;
+    color: #b0b0b0;
+}
+
+/* Weather cards */
+[data-testid="stMetric"] {
+    background-color: #1c1c1c;
+    border: 1px solid #333333;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+/* Input box */
+input {
+    background-color: #1c1c1c !important;
+    color: white !important;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    color: #888888;
 }
 
 </style>
@@ -45,81 +74,62 @@ st.divider()
 col1, col2 = st.columns([4, 1])
 
 with col1:
-
     city = st.text_input(
-        "Search City",
+        "🔍 Search City",
         placeholder="Enter city name..."
     )
 
 with col2:
-
     st.write("")
     search = st.button(
-        "🔍 Search",
+        "Search",
         use_container_width=True
     )
 
 
-# Default city display
+# Display city
 display_city = city if city else "Your City"
 
 
-# Weather card
-st.markdown("### 📍 " + display_city)
-
+# Weather section
+st.markdown(f"### 📍 {display_city}")
 st.caption("Current Weather Information")
 
 
-# Main weather section
+# Main weather cards
 col1, col2 = st.columns(2)
 
 with col1:
-
-    st.metric(
-        "🌡️ Temperature",
-        "-- °C"
-    )
-
-    st.metric(
-        "☁️ Weather",
-        "--"
-    )
+    st.metric("🌡️ Temperature", "-- °C")
+    st.metric("☁️ Weather", "--")
 
 with col2:
-
-    st.metric(
-        "💧 Humidity",
-        "-- %"
-    )
-
-    st.metric(
-        "💨 Wind Speed",
-        "-- km/h"
-    )
+    st.metric("💧 Humidity", "-- %")
+    st.metric("💨 Wind Speed", "-- km/h")
 
 
 st.divider()
 
 
-# Additional information
+# Additional details
 st.subheader("📊 Weather Details")
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.metric("Feels Like", "-- °C")
+    st.metric("🌡️ Feels Like", "-- °C")
 
 with col2:
-    st.metric("Pressure", "-- hPa")
+  st.metric("📊 Pressure", "-- hPa")
 
 with col3:
-    st.metric("Visibility", "-- km")
+    st.metric("👁️ Visibility", "-- km")
 
 
 # Footer
 st.divider()
 
 st.markdown(
-    "<center>🌦️ WeatherNow • Built with Python & Streamlit</center>",
+    '<p class="footer">🌦️ WeatherNow • Built with Python & Streamlit</p>',
     unsafe_allow_html=True
 )
