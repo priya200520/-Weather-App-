@@ -1,4 +1,5 @@
 import streamlit as st
+from utils import get_weather
 
 # Page configuration
 st.set_page_config(
@@ -11,13 +12,11 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* Main background */
 .stApp {
     background-color: #000000;
     color: white;
 }
 
-/* Main title */
 .main-title {
     text-align: center;
     font-size: 48px;
@@ -25,21 +24,18 @@ st.markdown("""
     color: white;
 }
 
-/* Subtitle */
 .subtitle {
     text-align: center;
     font-size: 18px;
     color: #b0b0b0;
 }
 
-/* Weather icon */
 .weather-icon {
     text-align: center;
     font-size: 100px;
     margin-top: 20px;
 }
 
-/* Weather status */
 .weather-status {
     text-align: center;
     font-size: 28px;
@@ -47,7 +43,6 @@ st.markdown("""
     color: white;
 }
 
-/* Weather cards */
 [data-testid="stMetric"] {
     background-color: #1c1c1c;
     border: 1px solid #333333;
@@ -55,13 +50,6 @@ st.markdown("""
     border-radius: 12px;
 }
 
-/* Input box */
-input {
-    background-color: #1c1c1c !important;
-    color: white !important;
-}
-
-/* Footer */
 .footer {
     text-align: center;
     color: #888888;
@@ -102,55 +90,113 @@ with col2:
     )
 
 
-# Display city
-display_city = city if city else "Your City"
+# Session state
+if "weather_data" not in st.session_state:
+    st.session_state.weather_data = None
 
 
-# Main weather icon
-st.markdown(
-    '<div class="weather-icon">🌤️</div>',
-    unsafe_allow_html=True
-)
+# Search weather
+if search:
 
-st.markdown(
-    '<div class="weather-status">Weather Information</div>',
-    unsafe_allow_html=True
-)
+    if city.strip():
 
+        with st.spinner("Fetching weather data..."):
 
-# Weather section
-st.markdown(f"### 📍 {display_city}")
-st.caption("Current Weather Information")
+            weather_data = get_weather(city)
 
+            if weather_data:
+                st.session_state.weather_data = weather_data
+            else:
+                st.error(
+                    "City not found or weather data could not be fetched."
+                )
 
-# Main weather cards
-col1, col2 = st.columns(2)
-
-with col1:
-    st.metric("🌡️ Temperature", "-- °C")
-    st.metric("☁️ Weather", "--")
-
-with col2:
-    st.metric("💧 Humidity", "-- %")
-    st.metric("💨 Wind Speed", "-- km/h")
+    else:
+        st.warning("Please enter a city name.")
 
 
-st.divider()
+# Display weather
+if st.session_state.weather_data:
+
+    data = st.session_state.weather_data
+
+    st.markdown(
+        '<div class="weather-icon">🌤️</div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        f'<div class="weather-status">{data["weather"].title()}</div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown(f"### 📍 {data['city']}")
+    st.caption("Current Weather Information")
 
 
-# Additional details
-st.subheader("📊 Weather Details")
+    # Main weather cards
+    col1, col2 = st.columns(2)
 
-col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric(
+            "🌡️ Temperature",
+            f"{data['temperature']} °C"
+        )
 
-with col1:
-    st.metric("🌡️ Feels Like", "-- °C")
+        st.metric(
+            "☁️ Weather",
+            data["weather"].title()
+        )
 
-with col2:
-    st.metric("📊 Pressure", "-- hPa")
+    with col2:
+        st.metric(
+            "💧 Humidity",
+            f"{data['humidity']} %"
+        )
 
-with col3:
-    st.metric("👁️ Visibility", "-- km")
+        st.metric(
+            "💨 Wind Speed",
+            f"{data['wind_speed']} m/s"
+        )
+
+
+    st.divider()
+
+
+    # Additional details
+    st.subheader("📊 Weather Details")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.metric(
+            "🌡️ Feels Like",
+            f"{data['feels_like']} °C"
+        )
+
+    with col2:
+        st.metric(
+            "📊 Pressure",
+            f"{data['pressure']} hPa"
+        )
+
+    with col3:
+        st.metric(
+            "👁️ Visibility",
+            f"{data['visibility']} km"
+        )
+
+else:
+
+    st.markdown(
+        '<div class="weather-icon">🌦️</div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        '<div class="weather-status">Search for a city</div>',
+        unsafe_allow_html=True
+    )
 
 
 # Footer
