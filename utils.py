@@ -10,6 +10,7 @@ API_KEY = os.getenv("WEATHER_API_KEY")
 
 def get_weather(city):
 
+    # Check API key
     if not API_KEY:
         return {
             "error": "API key not found. Check your .env file."
@@ -18,7 +19,7 @@ def get_weather(city):
     url = "https://api.openweathermap.org/data/2.5/weather"
 
     params = {
-        "q": city,
+        "q": f"{city},IN",
         "appid": API_KEY,
         "units": "metric"
     }
@@ -47,6 +48,7 @@ def get_weather(city):
             }
 
         else:
+
             return {
                 "error": data.get(
                     "message",
@@ -54,7 +56,14 @@ def get_weather(city):
                 )
             }
 
+    except requests.exceptions.RequestException as e:
+
+        return {
+            "error": f"Network error: {str(e)}"
+        }
+
     except Exception as e:
+
         return {
             "error": str(e)
         }
