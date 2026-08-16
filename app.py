@@ -1,12 +1,14 @@
 import streamlit as st
 from utils import get_weather
 
+
 # Page configuration
 st.set_page_config(
     page_title="WeatherNow",
     page_icon="🌦️",
     layout="wide"
 )
+
 
 # Custom styling
 st.markdown("""
@@ -102,23 +104,42 @@ if search:
 
         with st.spinner("Fetching weather data..."):
 
-            weather_data = get_weather(city)
+            weather_data = get_weather(city.strip())
 
-            if weather_data:
+            # Check for API or other errors
+            if weather_data and "error" in weather_data:
+
+                st.session_state.weather_data = None
+
+                st.error(
+                    f"⚠️ Error: {weather_data['error']}"
+                )
+
+            elif weather_data:
+
                 st.session_state.weather_data = weather_data
+
             else:
+
+                st.session_state.weather_data = None
+
                 st.error(
                     "City not found or weather data could not be fetched."
                 )
 
     else:
+
         st.warning("Please enter a city name.")
 
 
 # Display weather
-if st.session_state.weather_data:
+if (
+    st.session_state.weather_data
+    and "weather" in st.session_state.weather_data
+):
 
     data = st.session_state.weather_data
+
 
     st.markdown(
         '<div class="weather-icon">🌤️</div>',
@@ -126,11 +147,14 @@ if st.session_state.weather_data:
     )
 
     st.markdown(
-        f'<div class="weather-status">{data["weather"].title()}</div>',
+        f'<div class="weather-status">'
+        f'{data["weather"].title()}'
+        f'</div>',
         unsafe_allow_html=True
     )
 
     st.markdown(f"### 📍 {data['city']}")
+
     st.caption("Current Weather Information")
 
 
@@ -138,6 +162,7 @@ if st.session_state.weather_data:
     col1, col2 = st.columns(2)
 
     with col1:
+
         st.metric(
             "🌡️ Temperature",
             f"{data['temperature']} °C"
@@ -149,6 +174,7 @@ if st.session_state.weather_data:
         )
 
     with col2:
+
         st.metric(
             "💧 Humidity",
             f"{data['humidity']} %"
@@ -169,22 +195,26 @@ if st.session_state.weather_data:
     col1, col2, col3 = st.columns(3)
 
     with col1:
+
         st.metric(
             "🌡️ Feels Like",
             f"{data['feels_like']} °C"
         )
 
     with col2:
+
         st.metric(
             "📊 Pressure",
             f"{data['pressure']} hPa"
         )
 
     with col3:
+
         st.metric(
             "👁️ Visibility",
             f"{data['visibility']} km"
         )
+
 
 else:
 
