@@ -269,3 +269,4 @@ st.markdown(
     '<p class="footer">🌦️ WeatherNow • Built with Python & Streamlit</p>',
     unsafe_allow_html=True
 )
+# Weather App update
