@@ -68,16 +68,19 @@ def get_weather_theme(weather):
 if "weather_data" not in st.session_state:
     st.session_state.weather_data = None
 
+if "search_history" not in st.session_state:
+    st.session_state.search_history = []
+
 
 # Get current theme
-if st.session_state.weather_data and "weather" in st.session_state.weather_data:
-
+if (
+    st.session_state.weather_data
+    and "weather" in st.session_state.weather_data
+):
     background_color = get_weather_theme(
         st.session_state.weather_data["weather"]
     )
-
 else:
-
     background_color = "#000000"
 
 
@@ -135,6 +138,34 @@ st.markdown(
 )
 
 
+# Sidebar - Recent Searches
+st.sidebar.title("📍 Recent Searches")
+
+if st.session_state.search_history:
+
+    for recent_city in st.session_state.search_history:
+
+        if st.sidebar.button(
+            recent_city,
+            key=f"history_{recent_city}"
+        ):
+
+            with st.spinner("Fetching weather data..."):
+
+                weather_data = get_weather(recent_city)
+
+                if weather_data and "error" not in weather_data:
+                    st.session_state.weather_data = weather_data
+                    st.rerun()
+
+                else:
+                    st.sidebar.error("Could not fetch weather.")
+
+else:
+
+    st.sidebar.write("No recent searches yet.")
+
+
 # Header
 st.markdown(
     '<p class="main-title">🌦️ WeatherNow</p>',
@@ -189,6 +220,22 @@ if search:
             elif weather_data:
 
                 st.session_state.weather_data = weather_data
+
+                city_name = weather_data["city"]
+
+                # Add to search history without duplicates
+                if city_name in st.session_state.search_history:
+                    st.session_state.search_history.remove(city_name)
+
+                st.session_state.search_history.insert(
+                    0,
+                    city_name
+                )
+
+                # Keep only last 5 searches
+                st.session_state.search_history = (
+                    st.session_state.search_history[:5]
+                )
 
                 st.rerun()
 
@@ -271,21 +318,18 @@ if (
     col1, col2, col3 = st.columns(3)
 
     with col1:
-
         st.metric(
             "🌡️ Feels Like",
             f"{data['feels_like']} °C"
         )
 
     with col2:
-
         st.metric(
             "📊 Pressure",
             f"{data['pressure']} hPa"
         )
 
     with col3:
-
         st.metric(
             "👁️ Visibility",
             f"{data['visibility']} km"
