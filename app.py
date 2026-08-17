@@ -37,55 +37,102 @@ def get_weather_icon(weather):
         return "🌦️"
 
 
-# Custom styling
-st.markdown("""
-<style>
+# Function for dynamic weather theme
+def get_weather_theme(weather):
 
-.stApp {
-    background-color: #000000;
-    color: white;
-}
+    weather = weather.lower()
 
-.main-title {
-    text-align: center;
-    font-size: 48px;
-    font-weight: bold;
-    color: white;
-}
+    if "clear" in weather:
+        return "#4a90e2"
 
-.subtitle {
-    text-align: center;
-    font-size: 18px;
-    color: #b0b0b0;
-}
+    elif "cloud" in weather:
+        return "#596275"
 
-.weather-icon {
-    text-align: center;
-    font-size: 100px;
-    margin-top: 20px;
-}
+    elif "rain" in weather or "drizzle" in weather:
+        return "#34495e"
 
-.weather-status {
-    text-align: center;
-    font-size: 28px;
-    font-weight: bold;
-    color: white;
-}
+    elif "thunderstorm" in weather:
+        return "#2c3e50"
 
-[data-testid="stMetric"] {
-    background-color: #1c1c1c;
-    border: 1px solid #333333;
-    padding: 20px;
-    border-radius: 12px;
-}
+    elif "snow" in weather:
+        return "#7f8c8d"
 
-.footer {
-    text-align: center;
-    color: #888888;
-}
+    elif "mist" in weather or "fog" in weather or "haze" in weather:
+        return "#636e72"
 
-</style>
-""", unsafe_allow_html=True)
+    else:
+        return "#000000"
+
+
+# Session state
+if "weather_data" not in st.session_state:
+    st.session_state.weather_data = None
+
+
+# Get current theme
+if st.session_state.weather_data and "weather" in st.session_state.weather_data:
+
+    background_color = get_weather_theme(
+        st.session_state.weather_data["weather"]
+    )
+
+else:
+
+    background_color = "#000000"
+
+
+# Dynamic styling
+st.markdown(
+    f"""
+    <style>
+
+    .stApp {{
+        background-color: {background_color};
+        color: white;
+    }}
+
+    .main-title {{
+        text-align: center;
+        font-size: 48px;
+        font-weight: bold;
+        color: white;
+    }}
+
+    .subtitle {{
+        text-align: center;
+        font-size: 18px;
+        color: #dcdde1;
+    }}
+
+    .weather-icon {{
+        text-align: center;
+        font-size: 100px;
+        margin-top: 20px;
+    }}
+
+    .weather-status {{
+        text-align: center;
+        font-size: 28px;
+        font-weight: bold;
+        color: white;
+    }}
+
+    [data-testid="stMetric"] {{
+        background-color: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 20px;
+        border-radius: 12px;
+    }}
+
+    .footer {{
+        text-align: center;
+        color: #dcdde1;
+    }}
+
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 
 # Header
@@ -106,22 +153,20 @@ st.divider()
 col1, col2 = st.columns([4, 1])
 
 with col1:
+
     city = st.text_input(
         "🔍 Search City",
         placeholder="Enter city name..."
     )
 
 with col2:
+
     st.write("")
+
     search = st.button(
         "Search",
         use_container_width=True
     )
-
-
-# Session state
-if "weather_data" not in st.session_state:
-    st.session_state.weather_data = None
 
 
 # Search weather
@@ -145,6 +190,8 @@ if search:
 
                 st.session_state.weather_data = weather_data
 
+                st.rerun()
+
             else:
 
                 st.session_state.weather_data = None
@@ -166,11 +213,9 @@ if (
 
     data = st.session_state.weather_data
 
-    # Get dynamic icon
     weather_icon = get_weather_icon(
         data["weather"]
     )
-
 
     st.markdown(
         f'<div class="weather-icon">{weather_icon}</div>',
@@ -221,8 +266,6 @@ if (
 
     st.divider()
 
-
-    # Additional details
     st.subheader("📊 Weather Details")
 
     col1, col2, col3 = st.columns(3)
@@ -269,4 +312,3 @@ st.markdown(
     '<p class="footer">🌦️ WeatherNow • Built with Python & Streamlit</p>',
     unsafe_allow_html=True
 )
-# Weather App update
