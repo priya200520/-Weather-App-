@@ -98,7 +98,6 @@ st.markdown(
         text-align: center;
         font-size: 48px;
         font-weight: bold;
-        color: white;
     }}
 
     .subtitle {{
@@ -117,7 +116,6 @@ st.markdown(
         text-align: center;
         font-size: 28px;
         font-weight: bold;
-        color: white;
     }}
 
     [data-testid="stMetric"] {{
@@ -161,6 +159,16 @@ if st.session_state.search_history:
                 else:
                     st.sidebar.error("Could not fetch weather.")
 
+
+    # Clear history button
+    if st.sidebar.button("🗑️ Clear History"):
+
+        st.session_state.search_history = []
+
+        st.sidebar.success("Search history cleared!")
+
+        st.rerun()
+
 else:
 
     st.sidebar.write("No recent searches yet.")
@@ -184,16 +192,13 @@ st.divider()
 col1, col2 = st.columns([4, 1])
 
 with col1:
-
     city = st.text_input(
         "🔍 Search City",
         placeholder="Enter city name..."
     )
 
 with col2:
-
     st.write("")
-
     search = st.button(
         "Search",
         use_container_width=True
@@ -223,7 +228,7 @@ if search:
 
                 city_name = weather_data["city"]
 
-                # Add to search history without duplicates
+                # Add city to history without duplicates
                 if city_name in st.session_state.search_history:
                     st.session_state.search_history.remove(city_name)
 
@@ -276,9 +281,7 @@ if (
         unsafe_allow_html=True
     )
 
-    st.markdown(
-        f"### 📍 {data['city']}"
-    )
+    st.markdown(f"### 📍 {data['city']}")
 
     st.caption("Current Weather Information")
 
@@ -287,7 +290,6 @@ if (
     col1, col2 = st.columns(2)
 
     with col1:
-
         st.metric(
             "🌡️ Temperature",
             f"{data['temperature']} °C"
@@ -299,7 +301,6 @@ if (
         )
 
     with col2:
-
         st.metric(
             "💧 Humidity",
             f"{data['humidity']} %"
