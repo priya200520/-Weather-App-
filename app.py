@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import get_weather
+from utils import get_weather, get_forecast
 
 
 # Page configuration
@@ -17,22 +17,16 @@ def get_weather_icon(weather):
 
     if "clear" in weather:
         return "☀️"
-
     elif "cloud" in weather:
         return "☁️"
-
     elif "rain" in weather or "drizzle" in weather:
         return "🌧️"
-
     elif "thunderstorm" in weather:
         return "⛈️"
-
     elif "snow" in weather:
         return "❄️"
-
     elif "mist" in weather or "fog" in weather or "haze" in weather:
         return "🌫️"
-
     else:
         return "🌦️"
 
@@ -44,22 +38,16 @@ def get_weather_theme(weather):
 
     if "clear" in weather:
         return "#4a90e2"
-
     elif "cloud" in weather:
         return "#596275"
-
     elif "rain" in weather or "drizzle" in weather:
         return "#34495e"
-
     elif "thunderstorm" in weather:
         return "#2c3e50"
-
     elif "snow" in weather:
         return "#7f8c8d"
-
     elif "mist" in weather or "fog" in weather or "haze" in weather:
         return "#636e72"
-
     else:
         return "#000000"
 
@@ -67,6 +55,9 @@ def get_weather_theme(weather):
 # Session state
 if "weather_data" not in st.session_state:
     st.session_state.weather_data = None
+
+if "forecast_data" not in st.session_state:
+    st.session_state.forecast_data = None
 
 if "search_history" not in st.session_state:
     st.session_state.search_history = []
@@ -151,27 +142,41 @@ if st.session_state.search_history:
             with st.spinner("Fetching weather data..."):
 
                 weather_data = get_weather(recent_city)
+                forecast_data = get_forecast(recent_city)
 
                 if weather_data and "error" not in weather_data:
+
                     st.session_state.weather_data = weather_data
+
+                    if (
+                        forecast_data
+                        and not isinstance(forecast_data, dict)
+                    ):
+                        st.session_state.forecast_data = forecast_data
+
                     st.rerun()
 
                 else:
-                    st.sidebar.error("Could not fetch weather.")
+                    st.sidebar.error(
+                        "Could not fetch weather."
+                    )
 
 
-    # Clear history button
     if st.sidebar.button("🗑️ Clear History"):
 
         st.session_state.search_history = []
 
-        st.sidebar.success("Search history cleared!")
+        st.sidebar.success(
+            "Search history cleared!"
+        )
 
         st.rerun()
 
 else:
 
-    st.sidebar.write("No recent searches yet.")
+    st.sidebar.write(
+        "No recent searches yet."
+    )
 
 
 # Header
@@ -192,13 +197,16 @@ st.divider()
 col1, col2 = st.columns([4, 1])
 
 with col1:
+
     city = st.text_input(
         "🔍 Search City",
         placeholder="Enter city name..."
     )
 
 with col2:
+
     st.write("")
+
     search = st.button(
         "Search",
         use_container_width=True
@@ -212,25 +220,49 @@ if search:
 
         with st.spinner("Fetching weather data..."):
 
-            weather_data = get_weather(city.strip())
+            weather_data = get_weather(
+                city.strip()
+            )
+
+            forecast_data = get_forecast(
+                city.strip()
+            )
 
             if weather_data and "error" in weather_data:
 
                 st.session_state.weather_data = None
+                st.session_state.forecast_data = None
 
                 st.error(
-                    f"⚠️ Error: {weather_data['error']}"
+                    f"⚠️ Error: "
+                    f"{weather_data['error']}"
                 )
 
             elif weather_data:
 
                 st.session_state.weather_data = weather_data
 
+                if (
+                    forecast_data
+                    and not isinstance(
+                        forecast_data,
+                        dict
+                    )
+                ):
+                    st.session_state.forecast_data = (
+                        forecast_data
+                    )
+
                 city_name = weather_data["city"]
 
                 # Add city to history without duplicates
-                if city_name in st.session_state.search_history:
-                    st.session_state.search_history.remove(city_name)
+                if (
+                    city_name
+                    in st.session_state.search_history
+                ):
+                    st.session_state.search_history.remove(
+                        city_name
+                    )
 
                 st.session_state.search_history.insert(
                     0,
@@ -247,14 +279,18 @@ if search:
             else:
 
                 st.session_state.weather_data = None
+                st.session_state.forecast_data = None
 
                 st.error(
-                    "City not found or weather data could not be fetched."
+                    "City not found or weather data "
+                    "could not be fetched."
                 )
 
     else:
 
-        st.warning("Please enter a city name.")
+        st.warning(
+            "Please enter a city name."
+        )
 
 
 # Display weather
@@ -269,8 +305,10 @@ if (
         data["weather"]
     )
 
+
     st.markdown(
-        f'<div class="weather-icon">{weather_icon}</div>',
+        f'<div class="weather-icon">'
+        f'{weather_icon}</div>',
         unsafe_allow_html=True
     )
 
@@ -281,15 +319,20 @@ if (
         unsafe_allow_html=True
     )
 
-    st.markdown(f"### 📍 {data['city']}")
+    st.markdown(
+        f"### 📍 {data['city']}"
+    )
 
-    st.caption("Current Weather Information")
+    st.caption(
+        "Current Weather Information"
+    )
 
 
     # Main weather cards
     col1, col2 = st.columns(2)
 
     with col1:
+
         st.metric(
             "🌡️ Temperature",
             f"{data['temperature']} °C"
@@ -301,6 +344,7 @@ if (
         )
 
     with col2:
+
         st.metric(
             "💧 Humidity",
             f"{data['humidity']} %"
@@ -314,27 +358,93 @@ if (
 
     st.divider()
 
-    st.subheader("📊 Weather Details")
+    st.subheader(
+        "📊 Weather Details"
+    )
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
+
         st.metric(
             "🌡️ Feels Like",
             f"{data['feels_like']} °C"
         )
 
     with col2:
+
         st.metric(
             "📊 Pressure",
             f"{data['pressure']} hPa"
         )
 
     with col3:
+
         st.metric(
             "👁️ Visibility",
             f"{data['visibility']} km"
         )
+
+
+    # 5-Day Forecast
+    if st.session_state.forecast_data:
+
+        st.divider()
+
+        st.subheader(
+            "📅 5-Day Weather Forecast"
+        )
+
+        forecast = (
+            st.session_state.forecast_data
+        )
+
+        # Show one forecast every 24 hours
+        daily_forecast = forecast[::8][:5]
+
+        columns = st.columns(
+            len(daily_forecast)
+        )
+
+        for i, item in enumerate(
+            daily_forecast
+        ):
+
+            forecast_icon = get_weather_icon(
+                item["weather"]
+            )
+
+            date = item["date"].split(
+                " "
+            )[0]
+
+            with columns[i]:
+
+                st.markdown(
+                    f"### {date}"
+                )
+
+                st.markdown(
+                    f"# {forecast_icon}"
+                )
+
+                st.write(
+                    item["weather"].title()
+                )
+
+                st.metric(
+                    "Temperature",
+                    f"{item['temperature']} °C"
+                )
+
+                st.write(
+                    f"💧 {item['humidity']}%"
+                )
+
+                st.write(
+                    f"💨 "
+                    f"{item['wind_speed']} m/s"
+                )
 
 
 else:
@@ -345,7 +455,8 @@ else:
     )
 
     st.markdown(
-        '<div class="weather-status">Search for a city</div>',
+        '<div class="weather-status">'
+        'Search for a city</div>',
         unsafe_allow_html=True
     )
 
@@ -354,6 +465,8 @@ else:
 st.divider()
 
 st.markdown(
-    '<p class="footer">🌦️ WeatherNow • Built with Python & Streamlit</p>',
+    '<p class="footer">'
+    '🌦️ WeatherNow • Built with Python & Streamlit'
+    '</p>',
     unsafe_allow_html=True
 )
