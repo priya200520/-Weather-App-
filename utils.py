@@ -169,3 +169,4 @@ def get_forecast(city):
         return {
             "error": str(e)
         }
+    # 5-day forecast feature added
