@@ -10,6 +10,33 @@ st.set_page_config(
 )
 
 
+# Function for dynamic weather icon
+def get_weather_icon(weather):
+
+    weather = weather.lower()
+
+    if "clear" in weather:
+        return "☀️"
+
+    elif "cloud" in weather:
+        return "☁️"
+
+    elif "rain" in weather or "drizzle" in weather:
+        return "🌧️"
+
+    elif "thunderstorm" in weather:
+        return "⛈️"
+
+    elif "snow" in weather:
+        return "❄️"
+
+    elif "mist" in weather or "fog" in weather or "haze" in weather:
+        return "🌫️"
+
+    else:
+        return "🌦️"
+
+
 # Custom styling
 st.markdown("""
 <style>
@@ -106,7 +133,6 @@ if search:
 
             weather_data = get_weather(city.strip())
 
-            # Check for API or other errors
             if weather_data and "error" in weather_data:
 
                 st.session_state.weather_data = None
@@ -140,9 +166,14 @@ if (
 
     data = st.session_state.weather_data
 
+    # Get dynamic icon
+    weather_icon = get_weather_icon(
+        data["weather"]
+    )
+
 
     st.markdown(
-        '<div class="weather-icon">🌤️</div>',
+        f'<div class="weather-icon">{weather_icon}</div>',
         unsafe_allow_html=True
     )
 
@@ -153,7 +184,9 @@ if (
         unsafe_allow_html=True
     )
 
-    st.markdown(f"### 📍 {data['city']}")
+    st.markdown(
+        f"### 📍 {data['city']}"
+    )
 
     st.caption("Current Weather Information")
 
